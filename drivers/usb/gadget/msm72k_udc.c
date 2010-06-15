@@ -1243,8 +1243,6 @@ static void usb_do_work(struct work_struct *w)
 				usb_phy_reset(ui);
 #endif
 
-				usb_phy_reset(ui);
-
 				/* power down phy, clock down usb */
 				spin_lock_irqsave(&ui->lock, iflags);
 				usb_suspend_phy(ui);
