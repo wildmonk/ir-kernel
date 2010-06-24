@@ -1,3 +1,6 @@
+#ifdef CONFIG_SCHED_BFS
+#include "sched_bfs.c"
+#else
 /*
  *  kernel/sched.c
  *
@@ -8856,15 +8859,15 @@ struct cpuacct {
 	u64 __percpu *cpuusage;
 	struct percpu_counter cpustat[CPUACCT_STAT_NSTATS];
 	struct cpuacct *parent;
-	struct cpuacct_cpufreq_calls *cpufreq_fn;
+	struct cpuacct_charge_calls *cpufreq_fn;
 	void *cpuacct_data;
 };
 
 static struct cpuacct *cpuacct_root;
 
 /* Default calls for cpufreq accounting */
-static struct cpuacct_cpufreq_calls *cpuacct_cpufreq;
-int cpuacct_register_cpufreq(struct cpuacct_cpufreq_calls *fn)
+static struct cpuacct_charge_calls *cpuacct_cpufreq;
+int cpuacct_register_cpufreq(struct cpuacct_charge_calls *fn)
 {
 	cpuacct_cpufreq = fn;
 
@@ -9295,3 +9298,4 @@ void synchronize_sched_expedited(void)
 EXPORT_SYMBOL_GPL(synchronize_sched_expedited);
 
 #endif /* #else #ifndef CONFIG_SMP */
+#endif /* CONFIG_SCHED_BFS */
