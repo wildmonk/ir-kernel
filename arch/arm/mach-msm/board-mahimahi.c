@@ -969,11 +969,26 @@ static void config_gpio_table(uint32_t *table, int len)
 #define TPS65023_MAX_DCDC1	CONFIG_QSD_PMIC_DEFAULT_DCDC1
 #endif
 
+static struct msm_acpu_clock_platform_data mahimahi_clock_data;
+
 static int qsd8x50_tps65023_set_dcdc1(int mVolts)
 {
-        int rc = 0;
+	int rc = 0;
+
+	if (!mahimahi_clock_data.regulator || IS_ERR(mahimahi_clock_data.regulator)) {
+		mahimahi_clock_data.regulator = regulator_get(NULL, "acpu_vcore");
+		if (IS_ERR(mahimahi_clock_data.regulator)) {
+			pr_info("qsd8x50_tps65023_set_dcdc1 %d no regulator\n", mVolts);
+			/* Assume that the PMIC supports scaling the processor
+			  * to its maximum frequency at its default voltage.
+			  */
+			return 0;
+		}
+		pr_info("qsd8x50_tps65023_set_dcdc1 got regulator\n");
+	}
+
 #ifdef CONFIG_QSD_SVS
-	rc = tps65023_set_dcdc1_level(mVolts);
+	rc = tps65023_set_dcdc1_level(mahimahi_clock_data.regulator->rdev, mVolts);
 	/* By default the TPS65023 will be initialized to 1.225V.
 	 * So we can safely switch to any frequency within this
 	 * voltage even if the device is not probed/ready.
